@@ -12,11 +12,20 @@ fi
 ELEMENT=$1
 
 # Query the database for the element
-ELEMENT_INFO=$($PSQL "SELECT e.atomic_number, e.name, e.symbol, t.type, p.atomic_mass, p.melting_point_celsius, p.boiling_point_celsius
-FROM elements e
-JOIN properties p ON e.atomic_number = p.atomic_number
-JOIN types t ON p.type_id = t.type_id
-WHERE e.symbol = '$ELEMENT' OR e.name = '$ELEMENT';")
+if [[ $ELEMENT =~ ^[0-9]+$ ]]; then
+  ELEMENT_INFO=$($PSQL "SELECT e.atomic_number, e.name, e.symbol, t.type, p.atomic_mass, p.melting_point_celsius, p.boiling_point_celsius
+  FROM elements e
+  JOIN properties p ON e.atomic_number = p.atomic_number
+  JOIN types t ON p.type_id = t.type_id
+  WHERE e.atomic_number = $ELEMENT;")
+else
+  ELEMENT_INFO=$($PSQL "SELECT e.atomic_number, e.name, e.symbol, t.type, p.atomic_mass, p.melting_point_celsius, p.boiling_point_celsius
+  FROM elements e
+  JOIN properties p ON e.atomic_number = p.atomic_number
+  JOIN types t ON p.type_id = t.type_id
+  WHERE e.symbol = '$ELEMENT' OR e.name = '$ELEMENT';")
+fi
+
 
 # Check if the query returned a result
 if [[ -z $ELEMENT_INFO ]]
